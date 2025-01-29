@@ -11,8 +11,7 @@ let permissionGranted = false; // Zugriff auf Sensoren
 function setup() {
   createCanvas(windowWidth, 400); // 2D-Canvas
   textFont('sans-serif');
-
-
+  
   // Prüfen, ob Geolocation verfügbar ist
   if ("geolocation" in navigator) {
     statusText = "Waiting for GPS ...";
@@ -61,7 +60,7 @@ function draw() {
     textSize(20);
     text("Please allow sensor permission", width / 2, height / 2-50);
     textSize(12);
-    text("version 1.2", width / 2, height / 2+50);
+    text("version 1.6", width / 2, height / 2+50);
     return;
   }
 
@@ -76,11 +75,14 @@ function draw() {
 
   // Kurs-Skala
   drawHeadingScale();
+  
+  // SteuerGenauigkeit
+  drawSteeringText();
 
   // Versionsnummer anzeigen
   fill(0);
   textSize(10);
-  text("version 1.2", 20, height - 20); // Position unten links
+  text("version 1.6", 20, height - 20); // Position unten links
 }
 
 function drawCourseText() {
@@ -88,32 +90,13 @@ function drawCourseText() {
   translate(width / 2, height / 2 - 80); // Position über der Skala
   fill(0); // Farbe des Textes (Schwarz)
   textAlign(CENTER, TOP);
-  textSize(36); // Schriftgröße
+  textSize(40); // Schriftgröße
   textStyle(BOLD);
-  
-  /*
   text(`COG: ${headingGPS.toFixed(0)}°           SOG: ${(speed * 3.6).toFixed(1)} km/h`, 0, -90);
   translate(0,100); 
   textStyle(BOLD);
   text(`heading: ${headingGyro.toFixed(0)}°`, 0, -100); // Zentrierter Text
-  */
-  
-    text(`COG: ${headingGPS.toFixed(0)}°    SOG: ${(speed * 3.6).toFixed(1)} km/h`, 0, -90);
-  text(`Heading: ${headingGyro.toFixed(0)}°`, 0, -50);
-
-  // **Steuergenauigkeit anzeigen**
-  fill(steeringAccuracy < 10 ? "green" : "red"); // Grün wenn genau, Rot wenn Abweichung groß
-  text(`Steering Accuracy: ${steeringAccuracy}°`, 0, -10);
-
-  // **Falls eine Wende erkannt wurde, alten Kurs anzeigen**
-  if (previousHeading !== null) {
-    fill(0);
-    text(`Previous Course: ${previousHeading.toFixed(0)}°`, 0, 30);
-  }
-  
-  
   pop();
-  
 }
 
 function draw2DOverlay() {
@@ -125,52 +108,78 @@ function draw2DOverlay() {
   text(statusText, 20, 20);
   text(`lon: ${latitude.toFixed(5)}`, 20, 50);
   text(`lat: ${longitude.toFixed(5)}`, 20, 80);
-  text(`altitude: ${altitudeGPS.toFixed(0)} m`, 20, 110);
+  text(`altitude: ${(altitudeGPS || 0).toFixed(0)} m`, 20, 110);
 }
+
+
 
 function drawHeadingScale() {
   push();
   translate(width / 2, height / 2 + 50); // Mitte der Skala
-
-  let scaleWidth = width * 0.95; // Skala auf 95% der Bildschirmbreite
+  
+  let scaleWidth = width * 0.8; // Skala über 80% der Bildschirmbreite
   let scaleHeight = 40; // Höhe der Skala
   let fieldOfView = 60; // ±60° um den aktuellen Kurs
 
-  // **Clip-Bereich setzen**
-  beginClip(-scaleWidth / 2, -scaleHeight / 2, scaleWidth, scaleHeight * 2);
+  
+  function drawGradientRect(x, y, w, h, color1, color2, color3) {
+  noFill();
+  
+  for (let i = 0; i < w; i++) {
+    let inter = map(i, 0, w, 0, 1); // Interpolationsfaktor (0 bis 1)
+    
+    let col;
+    if (inter < 0.5) {
+      // Erste Hälfte: Verlauf zwischen color1 & color2
+      col = lerpColor(color1, color2, inter * 2);
+    } else {
+      // Zweite Hälfte: Verlauf zwischen color2 & color3
+      col = lerpColor(color2, color3, (inter - 0.5) * 2);
+    }
+    
+    stroke(col);
+    line(x + i, y, x + i, y + h);
+  }
+}
 
-  fill(240);
-  rect(0, 0, scaleWidth, scaleHeight + 40);
+    // **3-Farben-Verlauf für die Skala**
+  let c1 = color(55);  // Rot (links)
+  let c2 = color(255); // Gelb (Mitte)
+  let c3 = color(55);  // Blau (rechts)
+  drawGradientRect(-scaleWidth / 2, -40, scaleWidth, scaleHeight + 40, c1, c2, c3);
 
-  for (let i = Math.floor(headingGyro / 20) * 20 - fieldOfView; 
-       i <= Math.ceil(headingGyro / 20) * 20 + fieldOfView; 
+
+  // **Offset sorgt für sanfte Bewegung der Skala**
+  let correctedHeading = headingGyro;
+  let offsetX = map(correctedHeading % 20, 0, 20, 0, scaleWidth / (fieldOfView / 10));
+
+  // **Jetzt bewegt sich die Skala mit headingGyro!**
+  for (let i = Math.floor(correctedHeading / 20) * 20 - fieldOfView; 
+       i <= Math.ceil(correctedHeading / 20) * 20 + fieldOfView; 
        i += 20) { 
 
-    let adjustedAngle = (i + 360) % 360;
-    let xPos = map(i - headingGyro, -fieldOfView, fieldOfView, -scaleWidth / 2, scaleWidth / 2);
+    let adjustedAngle = (i + 360) % 360; // Winkel auf 0-360° begrenzen
 
-    // **Fading am Rand mit Alpha-Wert**
-    let fade = map(abs(i - headingGyro), fieldOfView * 0.7, fieldOfView, 255, 0); 
-    fade = constrain(fade, 0, 255); // Sicherstellen, dass Alpha zwischen 0 und 255 bleibt
+    // **Jetzt hängt die Position direkt von headingGyro ab!**
+    let xPos = map(i - correctedHeading, -fieldOfView, fieldOfView, -scaleWidth / 2, scaleWidth / 2);
 
-    let fontSize = map(abs(i - headingGyro), 0, fieldOfView, 30, 12);
-    let lineThickness = map(abs(i - headingGyro), 0, fieldOfView, 4, 1);
+    let fontSize = map(abs(i - correctedHeading), 0, fieldOfView, 30, 12); // Schriftgröße abhängig von Entfernung
+    let lineThickness = map(abs(i - correctedHeading), 0, fieldOfView, 4, 1); // Tick-Dicke abhängig von Entfernung
 
-    // **Markierungen zeichnen (mit Transparenz!)**
-    stroke(0, fade);
+    // **Tick-Marken bewegen sich mit!**
+    stroke(0);
     strokeWeight(lineThickness);
     line(xPos, -scaleHeight / 4 + 35, xPos, scaleHeight / 4 + 30);
     line(xPos, -scaleHeight / 4 - 15, xPos, scaleHeight / 4 - 50);
 
-    // **Zahlen mit Fading**
-    fill(0, fade);
+    // **Zahlen bleiben fix alle 20°, aber bewegen sich horizontal**
+    fill(0);
     noStroke();
     textSize(fontSize);
     textAlign(CENTER, CENTER);
     text(adjustedAngle.toFixed(0), xPos, scaleHeight / 2 - 20);
   }
 
-  endClip(); // Clip-Bereich schließen
   pop();
 
   // **Rote Kurs-Nadeln bleiben statisch über der Skala**
@@ -180,15 +189,17 @@ function drawHeadingScale() {
   let needleWidth = 40;
 
   // **Obere Nadel (zeigt nach unten)**
-  triangle(width / 2, height / 2 + 20, 
+  triangle(width / 2, height / 2 + 15, 
            width / 2 - needleWidth / 2, height / 2 - needleHeight,
            width / 2 + needleWidth / 2, height / 2 - needleHeight);
 
   // **Untere Nadel (zeigt nach oben)**
-  triangle(width / 2, height / 2 + 80, 
-           width / 2 - needleWidth / 2, height / 2 + 100,
-           width / 2 + needleWidth / 2, height / 2 + 100);
+  triangle(width / 2, height / 2 + 85, 
+           width / 2 - needleWidth / 2, height / 2 + 115,
+           width / 2 + needleWidth / 2, height / 2 + 115);
 }
+
+
 
 function drawInclinationIndicator() {
   push();
@@ -205,6 +216,7 @@ function drawInclinationIndicator() {
   text(`heeling: ${rotationY.toFixed(0)}°`, -70, 30);
   pop();
 }
+
 
 let headingHistory = []; // Liste für Heading-Werte mit Zeitstempel
 let smoothingTime = 5000; // **Mittelung über 5 Sekunden**
@@ -232,6 +244,27 @@ function updateHeading(heading) {
   } else if (abs(heading - previousHeading) > 90) {
     previousHeading = heading; // Wende erkannt → Alten Kurs aktualisieren
   }
+}
+
+function drawSteeringText() {
+  push();
+  translate(width / 2, height / 2 - 60); // Position über der Skala
+  fill(0);
+  textAlign(CENTER, CENTER);
+  textSize(24);
+  textStyle(BOLD);
+
+  // **Steuergenauigkeit anzeigen**
+  fill(steeringAccuracy < 10 ? "green" : "red"); // Grün wenn genau, Rot wenn Abweichung groß
+  text(`Steering Accuracy: ${steeringAccuracy}°`, 0, -50);
+
+  // **Falls eine Wende erkannt wurde, alten Kurs anzeigen**
+  if (previousHeading !== null) {
+    fill(0);
+    text(`Previous Course: ${previousHeading.toFixed(0)}°`, 0, 30);
+  }
+
+  pop();
 }
 
 
