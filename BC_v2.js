@@ -21,6 +21,7 @@ function setup() {
         latitude = position.coords.latitude;
         longitude = position.coords.longitude;
         speed = position.coords.speed || 0; // Geschwindigkeit in m/s
+        altitudeGPS = position.coords.altitude; // Höhe in Metern über dem Meeresspiegel
         if (position.coords.heading !== null) {
           headingGPS = position.coords.heading; // Bewegungsrichtung in Grad
         }
@@ -60,7 +61,7 @@ function draw() {
     textSize(20);
     text("Please allow sensor permission", width / 2, height / 2-50);
     textSize(12);
-    text("version 1.5", width / 2, height / 2+50);
+    text("version 1.1", width / 2, height / 2+50);
     return;
   }
 
@@ -79,7 +80,7 @@ function draw() {
   // Versionsnummer anzeigen
   fill(0);
   textSize(10);
-  text("version 1.5", 20, height - 20); // Position unten links
+  text("version 1.1", 20, height - 20); // Position unten links
 }
 
 function drawCourseText() {
@@ -132,70 +133,46 @@ function draw2DOverlay() {
 function drawHeadingScale() {
   push();
   translate(width / 2, height / 2 + 50); // Mitte der Skala
-  
-  let scaleWidth = width * 0.8; // Skala über 80% der Bildschirmbreite
+
+  let scaleWidth = width * 0.95; // Skala auf 95% der Bildschirmbreite
   let scaleHeight = 40; // Höhe der Skala
   let fieldOfView = 60; // ±60° um den aktuellen Kurs
-  
-  function drawGradientRect(x, y, w, h, color1, color2, color3) {
-  noFill();
-  
-  for (let i = 0; i < w; i++) {
-    let inter = map(i, 0, w, 0, 1); // Interpolationsfaktor (0 bis 1)
-    
-    let col;
-    if (inter < 0.5) {
-      // Erste Hälfte: Verlauf zwischen color1 & color2
-      col = lerpColor(color1, color2, inter * 2);
-    } else {
-      // Zweite Hälfte: Verlauf zwischen color2 & color3
-      col = lerpColor(color2, color3, (inter - 0.5) * 2);
-    }
-    
-    stroke(col);
-    line(x + i, y, x + i, y + h);
-  }
-}
 
-  
-  // **3-Farben-Verlauf für die Skala**
-  let c1 = color(55);  // Rot (links)
-  let c2 = color(255); // Gelb (Mitte)
-  let c3 = color(55);  // Blau (rechts)
-  drawGradientRect(-scaleWidth / 2, -40, scaleWidth, scaleHeight + 40, c1, c2, c3);
+  // **Clip-Bereich setzen**
+  beginClip(-scaleWidth / 2, -scaleHeight / 2, scaleWidth, scaleHeight * 2);
 
+  fill(240);
+  rect(0, 0, scaleWidth, scaleHeight + 40);
 
-  // **Offset sorgt für sanfte Bewegung der Skala**
-  let correctedHeading = headingGyro;
-  let offsetX = map(correctedHeading % 20, 0, 20, 0, scaleWidth / (fieldOfView / 10));
-
-  // **Jetzt bewegt sich die Skala mit headingGyro!**
-  for (let i = Math.floor(correctedHeading / 20) * 20 - fieldOfView; 
-       i <= Math.ceil(correctedHeading / 20) * 20 + fieldOfView; 
+  for (let i = Math.floor(headingGyro / 20) * 20 - fieldOfView; 
+       i <= Math.ceil(headingGyro / 20) * 20 + fieldOfView; 
        i += 20) { 
 
-    let adjustedAngle = (i + 360) % 360; // Winkel auf 0-360° begrenzen
+    let adjustedAngle = (i + 360) % 360;
+    let xPos = map(i - headingGyro, -fieldOfView, fieldOfView, -scaleWidth / 2, scaleWidth / 2);
 
-    // **Jetzt hängt die Position direkt von headingGyro ab!**
-    let xPos = map(i - correctedHeading, -fieldOfView, fieldOfView, -scaleWidth / 2, scaleWidth / 2);
+    // **Fading am Rand mit Alpha-Wert**
+    let fade = map(abs(i - headingGyro), fieldOfView * 0.7, fieldOfView, 255, 0); 
+    fade = constrain(fade, 0, 255); // Sicherstellen, dass Alpha zwischen 0 und 255 bleibt
 
-    let fontSize = map(abs(i - correctedHeading), 0, fieldOfView, 30, 12); // Schriftgröße abhängig von Entfernung
-    let lineThickness = map(abs(i - correctedHeading), 0, fieldOfView, 4, 1); // Tick-Dicke abhängig von Entfernung
+    let fontSize = map(abs(i - headingGyro), 0, fieldOfView, 30, 12);
+    let lineThickness = map(abs(i - headingGyro), 0, fieldOfView, 4, 1);
 
-    // **Tick-Marken bewegen sich mit!**
-    stroke(0);
+    // **Markierungen zeichnen (mit Transparenz!)**
+    stroke(0, fade);
     strokeWeight(lineThickness);
     line(xPos, -scaleHeight / 4 + 35, xPos, scaleHeight / 4 + 30);
     line(xPos, -scaleHeight / 4 - 15, xPos, scaleHeight / 4 - 50);
 
-    // **Zahlen bleiben fix alle 20°, aber bewegen sich horizontal**
-    fill(0);
+    // **Zahlen mit Fading**
+    fill(0, fade);
     noStroke();
     textSize(fontSize);
     textAlign(CENTER, CENTER);
     text(adjustedAngle.toFixed(0), xPos, scaleHeight / 2 - 20);
   }
 
+  endClip(); // Clip-Bereich schließen
   pop();
 
   // **Rote Kurs-Nadeln bleiben statisch über der Skala**
@@ -205,17 +182,15 @@ function drawHeadingScale() {
   let needleWidth = 40;
 
   // **Obere Nadel (zeigt nach unten)**
-  triangle(width / 2, height / 2 + 15, 
+  triangle(width / 2, height / 2 + 20, 
            width / 2 - needleWidth / 2, height / 2 - needleHeight,
            width / 2 + needleWidth / 2, height / 2 - needleHeight);
 
   // **Untere Nadel (zeigt nach oben)**
-  triangle(width / 2, height / 2 + 85, 
-           width / 2 - needleWidth / 2, height / 2 + 115,
-           width / 2 + needleWidth / 2, height / 2 + 115);
+  triangle(width / 2, height / 2 + 80, 
+           width / 2 - needleWidth / 2, height / 2 + 100,
+           width / 2 + needleWidth / 2, height / 2 + 100);
 }
-
-
 
 function drawInclinationIndicator() {
   push();
