@@ -60,7 +60,7 @@ function draw() {
     textSize(20);
     text("Please allow sensor permission", width / 2, height / 2-50);
     textSize(12);
-    text("version 1.6", width / 2, height / 2+50);
+    text("version 1.61", width / 2, height / 2+50);
     return;
   }
 
