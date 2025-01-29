@@ -61,7 +61,7 @@ function draw() {
     textSize(20);
     text("Please allow sensor permission", width / 2, height / 2-50);
     textSize(12);
-    text("version 1.1", width / 2, height / 2+50);
+    text("version 1.2", width / 2, height / 2+50);
     return;
   }
 
@@ -80,7 +80,7 @@ function draw() {
   // Versionsnummer anzeigen
   fill(0);
   textSize(10);
-  text("version 1.1", 20, height - 20); // Position unten links
+  text("version 1.2", 20, height - 20); // Position unten links
 }
 
 function drawCourseText() {
@@ -127,8 +127,6 @@ function draw2DOverlay() {
   text(`lat: ${longitude.toFixed(5)}`, 20, 80);
   text(`altitude: ${altitudeGPS.toFixed(0)} m`, 20, 110);
 }
-
-
 
 function drawHeadingScale() {
   push();
@@ -208,33 +206,34 @@ function drawInclinationIndicator() {
   pop();
 }
 
-
-let headingHistory = []; // Liste zur Speicherung der letzten Werte
-let smoothingFactor = 10; // Anzahl der Werte für den Mittelwert
+let headingHistory = []; // Liste für Heading-Werte mit Zeitstempel
+let smoothingTime = 5000; // **Mittelung über 5 Sekunden**
 let previousHeading = null; // Alter Kurs vor einer Wende
 let steeringAccuracy = 0; // Steuergenauigkeit
 
 function updateHeading(heading) {
-  headingHistory.push(heading);
+  let now = millis(); // **Aktuelle Zeit**
+  
+  // **Neuen Wert mit Zeitstempel speichern**
+  headingHistory.push({ heading: heading, time: now });
 
-  // **Nur die letzten `smoothingFactor` Werte behalten**
-  if (headingHistory.length > smoothingFactor) {
-    headingHistory.shift();
-  }
+  // **Alte Werte (> `smoothingTime` ms) entfernen**
+  headingHistory = headingHistory.filter(entry => now - entry.time <= smoothingTime);
 
   // **Gleitenden Mittelwert berechnen**
-  let avgHeading = headingHistory.reduce((a, b) => a + b, 0) / headingHistory.length;
+  let avgHeading = headingHistory.reduce((sum, entry) => sum + entry.heading, 0) / headingHistory.length;
 
   // **Steuergenauigkeit berechnen (Abweichung vom Mittelwert)**
   steeringAccuracy = abs(heading - avgHeading).toFixed(1);
 
-  // **Wende-Erkennung (>90° Veränderung zum vorherigen Kurs)**
+  // **Wende-Erkennung (>90° Änderung)**
   if (previousHeading === null) {
-    previousHeading = heading; // Initial setzen
+    previousHeading = heading;
   } else if (abs(heading - previousHeading) > 90) {
-    previousHeading = heading; // Wende erkannt → alten Kurs updaten
+    previousHeading = heading; // Wende erkannt → Alten Kurs aktualisieren
   }
 }
+
 
 function createPermissionButton() {
   let button = createButton("Request Sensor Access");
