@@ -233,10 +233,13 @@ function updateHeading(heading) {
   headingHistory = headingHistory.filter(entry => now - entry.time <= smoothingTime);
 
   // **Gleitenden Mittelwert berechnen**
-  let avgHeading = headingHistory.reduce((sum, entry) => sum + entry.heading, 0) / headingHistory.length;
+  if (headingHistory.length > 1) {
+    let sum = headingHistory.reduce((acc, entry) => acc + entry.heading, 0);
+    let avgHeading = sum / headingHistory.length;
 
-  // **Steuergenauigkeit berechnen (Abweichung vom Mittelwert)**
-  steeringAccuracy = abs(heading - avgHeading).toFixed(1);
+    // **Steuergenauigkeit berechnen**
+    steeringAccuracy = abs(heading - avgHeading).toFixed(1);
+  }
 
   // **Wende-Erkennung (>90° Änderung)**
   if (previousHeading === null) {
