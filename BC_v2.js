@@ -21,7 +21,7 @@ function setup() {
   link.style('color', '#ffffff');
   link.style('font-size', '16px');
 }
-}
+
   
   // Prüfen, ob Geolocation verfügbar ist
   if ("geolocation" in navigator) {
