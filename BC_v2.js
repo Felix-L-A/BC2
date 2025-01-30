@@ -8,11 +8,20 @@ let rotationY = 0; // Neigung (Y-Achse)
 let statusText = "Starte...";
 let permissionGranted = false; // Zugriff auf Sensoren
 let currentPage = 'home'; // Standardseite
-
+let link;
 
 function setup() {
   createCanvas(windowWidth, 400); // 2D-Canvas
   textFont('sans-serif');
+
+  if (currentPage === 'log') {
+    // E-Mail Link erstellen
+  link = createA('mailto:felix.leo.arens@gmail.com', 'E-Mail', '_self');
+  link.position(width / 2, 2 * height / 3);
+  link.style('color', '#ffffff');
+  link.style('font-size', '16px');
+}
+}
   
   // Prüfen, ob Geolocation verfügbar ist
   if ("geolocation" in navigator) {
@@ -125,13 +134,19 @@ function drawHome() {
 function drawLog() {
     textSize(32);
     textAlign(CENTER, CENTER);
-    text("Über uns: Hier stehen Informationen über das Projekt.", width / 2, height / 2);
+    text("Kontakt: schreib mir eine Nachricht", width / 2, height / 2);
+  
 }
 
 function drawClock() {
     textSize(32);
     textAlign(CENTER, CENTER);
-    text("Kontaktseite: Schreib uns eine Nachricht!", width / 2, height / 2);
+    fill(0);
+      let h = nf(hour(), 2);
+      let m = nf(minute(), 2);
+      let s = nf(second(), 2);
+    text(h + ':' + m + ':' + s, width / 2, height / 2);
+}
 }
 
   // Menüsteuerung
