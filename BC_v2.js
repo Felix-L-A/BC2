@@ -147,7 +147,7 @@ function drawClock() {
       let s = nf(second(), 2);
     text(h + ':' + m + ':' + s, width / 2, height / 2);
 }
-}
+
 
   // Menüsteuerung
 function changePage(page) {
