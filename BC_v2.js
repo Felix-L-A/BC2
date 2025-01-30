@@ -62,7 +62,7 @@ function draw() {
     textSize(20);
     text("Please allow sensor permission", width / 2, height / 2-50);
     textSize(12);
-    text("version 1.63", width / 2, height / 2+50);
+    text("version 1.72", width / 2, height / 2+50);
     return;
   }
 
@@ -73,6 +73,28 @@ function draw() {
     } else if (currentPage === 'clock') {
         drawClock();
     }
+
+  // Menüsteuerung
+function changePage(page) {
+    currentPage = page;
+    document.getElementById("menuDropdown").style.display = "none"; // Menü schließen
+    resizeCanvas(windowWidth, windowHeight); // Canvas neu skalieren
+}
+
+// Menü ein-/ausblenden (funktioniert auch auf Touch-Geräten)
+function toggleMenu() {
+    let dropdown = document.getElementById("menuDropdown");
+    if (dropdown.style.display === "block") {
+        dropdown.style.display = "none";
+    } else {
+        dropdown.style.display = "block";
+    }
+}
+
+// Automatische Skalierung bei Größenänderung
+function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
+}
 
   /////////////////////////////////////////////////
   // Seiteninhalt HOME
@@ -95,7 +117,7 @@ function drawHome() {
   // Versionsnummer anzeigen
   fill(0);
   textSize(10);
-  text("version 1.7", 20, height - 20); // Position unten links
+  text("version 1.72", 20, height - 20); // Position unten links
 }
 }
 
