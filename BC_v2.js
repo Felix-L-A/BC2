@@ -7,6 +7,8 @@ let headingGyro = 0; // Bewegungsrichtung basierend auf Gyroskop
 let rotationY = 0; // Neigung (Y-Achse)
 let statusText = "Starte...";
 let permissionGranted = false; // Zugriff auf Sensoren
+let currentPage = 'home'; // Standardseite
+
 
 function setup() {
   createCanvas(windowWidth, 400); // 2D-Canvas
@@ -53,7 +55,7 @@ function setup() {
 function draw() {
   background(255);
 
-  // Wenn keine Berechtigung für Sensoren erteilt wurde
+    // Wenn keine Berechtigung für Sensoren erteilt wurde
   if (!permissionGranted) {
     fill(0);
     textAlign(CENTER, CENTER);
@@ -64,6 +66,17 @@ function draw() {
     return;
   }
 
+  if (currentPage === 'home') {
+        drawHome();
+    } else if (currentPage === 'log') {
+        drawLog();
+    } else if (currentPage === 'clock') {
+        drawClock();
+    }
+
+  /////////////////////////////////////////////////
+  // Seiteninhalt HOME
+function drawHome() {
   // Neigungsanzeiger (Wasserlibelle)
   drawInclinationIndicator();
   
@@ -82,7 +95,32 @@ function draw() {
   // Versionsnummer anzeigen
   fill(0);
   textSize(10);
-  text("version 1.63", 20, height - 20); // Position unten links
+  text("version 1.7", 20, height - 20); // Position unten links
+}
+}
+
+function drawLog() {
+    textSize(32);
+    textAlign(CENTER, CENTER);
+    text("Über uns: Hier stehen Informationen über das Projekt.", width / 2, height / 2);
+}
+
+function drawClock() {
+    textSize(32);
+    textAlign(CENTER, CENTER);
+    text("Kontaktseite: Schreib uns eine Nachricht!", width / 2, height / 2);
+}
+
+  // Menüsteuerung
+function changePage(page) {
+    currentPage = page;
+    document.getElementById("menuDropdown").style.display = "none"; // Menü schließen
+}
+
+// Dropdown ein-/ausblenden
+function toggleMenu() {
+    let dropdown = document.getElementById("menuDropdown");
+    dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
 }
 
 function drawCourseText() {
