@@ -60,7 +60,7 @@ function draw() {
     textSize(20);
     text("Please allow sensor permission", width / 2, height / 2-50);
     textSize(12);
-    text("version 1.62", width / 2, height / 2+50);
+    text("version 1.63", width / 2, height / 2+50);
     return;
   }
 
@@ -82,7 +82,7 @@ function draw() {
   // Versionsnummer anzeigen
   fill(0);
   textSize(10);
-  text("version 1.62", 20, height - 20); // Position unten links
+  text("version 1.63", 20, height - 20); // Position unten links
 }
 
 function drawCourseText() {
@@ -285,6 +285,28 @@ function createPermissionButton() {
     });
   });
 }
+
+function requestPermissions() {
+    if (typeof DeviceMotionEvent.requestPermission === 'function') {
+        DeviceMotionEvent.requestPermission()
+        .then(permissionState => {
+            if (permissionState === 'granted') {
+                console.log("Sensor-Zugriff erlaubt!");
+                startCompass();
+            } else {
+                console.log("Sensor-Zugriff verweigert.");
+            }
+        })
+        .catch(console.error);
+    } else {
+        startCompass(); // Android braucht keine Extra-Freigabe
+    }
+}
+
+window.addEventListener("deviceorientation", (event) => {
+    let heading = event.webkitCompassHeading || (360 - event.alpha); // iOS bevorzugt
+    console.log("Magnetische Richtung:", heading.toFixed(2), "°");
+});
 
 function setupOrientationListener() {
   window.addEventListener("deviceorientation", (event) => {
