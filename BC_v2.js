@@ -54,7 +54,8 @@ function setup() {
 
 function draw() {
   background(255);
-
+  textSize(width < 600 ? 24 : 32);
+  
     // Wenn keine Berechtigung für Sensoren erteilt wurde
   if (!permissionGranted) {
     fill(0);
