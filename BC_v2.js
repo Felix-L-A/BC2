@@ -18,7 +18,7 @@ function setup() {
     // E-Mail Link erstellen
   link = createA('mailto:felix.leo.arens@gmail.com', 'E-Mail', '_self');
   link.position(width / 2, 2 * height / 3);
-  link.style('color', '#ffffff');
+  link.style('color', '0');
   link.style('font-size', '16px');
 }
 
