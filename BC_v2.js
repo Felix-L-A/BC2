@@ -60,7 +60,7 @@ function draw() {
     textSize(20);
     text("Please allow sensor permission", width / 2, height / 2-50);
     textSize(12);
-    text("version 1.61", width / 2, height / 2+50);
+    text("version 1.62", width / 2, height / 2+50);
     return;
   }
 
@@ -82,7 +82,7 @@ function draw() {
   // Versionsnummer anzeigen
   fill(0);
   textSize(10);
-  text("version 1.6", 20, height - 20); // Position unten links
+  text("version 1.62", 20, height - 20); // Position unten links
 }
 
 function drawCourseText() {
@@ -244,7 +244,7 @@ function updateHeading(heading) {
   // **Wende-Erkennung (>90° Änderung)**
   if (previousHeading === null) {
     previousHeading = heading;
-  } else if (abs(heading - previousHeading) > 90) {
+  } else if (abs(heading - previousHeading) > 70) {
     previousHeading = heading; // Wende erkannt → Alten Kurs aktualisieren
   }
 }
@@ -259,7 +259,7 @@ function drawSteeringText() {
 
   // **Steuergenauigkeit anzeigen**
   fill(steeringAccuracy < 10 ? "green" : "red"); // Grün wenn genau, Rot wenn Abweichung groß
-  text(`Steering Accuracy: ${steeringAccuracy}°`, 0, -50);
+  text(`steering accuracy: ${steeringAccuracy}°`, 0, -50);
 
   // **Falls eine Wende erkannt wurde, alten Kurs anzeigen**
   if (previousHeading !== null) {
@@ -290,5 +290,8 @@ function setupOrientationListener() {
   window.addEventListener("deviceorientation", (event) => {
     headingGyro = (360 - event.alpha) % 360;
     rotationY = event.beta || 0;
+    
+    // updateHeading() bei jeder Bewegung aufgerufen
+    updateHeading(headingGyro);
   });
 }
