@@ -109,8 +109,7 @@ function windowResized() {
   // Seiteninhalt HOME
 function drawHome() {
 
-  textAlign(CENTER, CENTER);
-  
+   
   // Neigungsanzeiger (Wasserlibelle)
   drawInclinationIndicator();
   
