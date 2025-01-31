@@ -158,7 +158,7 @@ function drawCourseText() {
   text(`COG: ${headingGPS.toFixed(0)}°      SOG: ${(speed * 3.6).toFixed(1)} km/h`, 0, -90);
   translate(0,100); 
   textStyle(BOLD);
-  text(`heading: ${headingGyro.toFixed(0)}°`, 0, -100); // Zentrierter Text
+  text(`heading: ${headingGyro.toFixed(0)}°`, 0, -110); // Zentrierter Text
   pop();
 }
 
@@ -247,11 +247,11 @@ function drawHeadingScale() {
   // **Rote Kurs-Nadeln bleiben statisch über der Skala**
   fill(255, 0, 0);
   noStroke();
-  let needleHeight = 20;
+  let needleHeight = 15;
   let needleWidth = 40;
 
   // **Obere Nadel (zeigt nach unten)**
-  triangle(width / 2, height / 2 + 15, 
+  triangle(width / 2, height / 2 + 20, 
            width / 2 - needleWidth / 2, height / 2 - needleHeight,
            width / 2 + needleWidth / 2, height / 2 - needleHeight);
 
