@@ -70,7 +70,7 @@ function draw() {
     textSize(20);
     text("Please allow sensor permission", width / 2, height / 2-50);
     textSize(12);
-    text("version 1.75", width / 2, height / 2+50);
+    text("version 1.76", width / 2, height / 2+50);
     return;
   }
 
@@ -110,7 +110,7 @@ function drawHome() {
   // Versionsnummer anzeigen
   fill(0);
   textSize(10);
-  text("version 1.75", 20, height - 20); // Position unten links
+  text("version 1.76", 20, height - 20); // Position unten links
 }
 }
 
@@ -153,12 +153,12 @@ function drawCourseText() {
   translate(width / 2, height / 2 - 80); // Position über der Skala
   fill(0); // Farbe des Textes (Schwarz)
   textAlign(CENTER, TOP);
-  textSize(40); // Schriftgröße
+  textSize(38); // Schriftgröße
   textStyle(BOLD);
-  text(`COG: ${headingGPS.toFixed(0)}°      SOG: ${(speed * 3.6).toFixed(1)} km/h`, 0, -90);
+  text(`COG: ${headingGPS.toFixed(0)}°    SOG: ${(speed * 3.6).toFixed(1)} km/h`, 0, -90);
   translate(0,100); 
   textStyle(BOLD);
-  text(`heading: ${headingGyro.toFixed(0)}°`, 0, -110); // Zentrierter Text
+  text(`heading: ${headingGyro.toFixed(0)}°`, 0, -130); // Zentrierter Text
   pop();
 }
 
@@ -205,9 +205,9 @@ function drawHeadingScale() {
 }
 
     // **3-Farben-Verlauf für die Skala**
-  let c1 = color(55);  // Rot (links)
-  let c2 = color(255); // Gelb (Mitte)
-  let c3 = color(55);  // Blau (rechts)
+  let c1 = color(55);  // grau (links)
+  let c2 = color(255); // weiß (Mitte)
+  let c3 = color(55);  // grau (rechts)
   drawGradientRect(-scaleWidth / 2, -40, scaleWidth, scaleHeight + 40, c1, c2, c3);
 
 
@@ -260,8 +260,6 @@ function drawHeadingScale() {
            width / 2 - needleWidth / 2, height / 2 + 115,
            width / 2 + needleWidth / 2, height / 2 + 115);
 }
-
-
 
 function drawInclinationIndicator() {
   push();
@@ -318,11 +316,11 @@ function drawSteeringText() {
   textAlign(CENTER, CENTER);
   textSize(24);
   textStyle(BOLD);
-
+/*
   // **Steuergenauigkeit anzeigen**
   fill(steeringAccuracy < 10 ? "green" : "red"); // Grün wenn genau, Rot wenn Abweichung groß
   text(`steering accuracy: ${steeringAccuracy}°`, 0, -50);
-
+*/
   // **Falls eine Wende erkannt wurde, alten Kurs anzeigen**
   if (previousHeading !== null) {
     fill(0);
@@ -365,10 +363,15 @@ function requestPermissions() {
     }
 }
 
+function startCompass() {
 window.addEventListener("deviceorientation", (event) => {
     let heading = event.webkitCompassHeading || (360 - event.alpha); // iOS bevorzugt
     console.log("Magnetische Richtung:", heading.toFixed(2), "°");
 });
+}
+
+// Auf Klick Berechtigungen anfragen
+document.addEventListener("click", requestPermissions);
 
 function setupOrientationListener() {
   window.addEventListener("deviceorientation", (event) => {
