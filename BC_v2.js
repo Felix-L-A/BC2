@@ -70,7 +70,7 @@ function draw() {
     textSize(20);
     text("Please allow sensor permission", width / 2, height / 2-50);
     textSize(12);
-    text("version 1.73", width / 2, height / 2+50);
+    text("version 1.75", width / 2, height / 2+50);
     return;
   }
 
@@ -101,7 +101,7 @@ function toggleMenu() {
 
 // Automatische Skalierung bei Größenänderung
 function windowResized() {
-    resizeCanvas(windowWidth, windowHeight);
+    resizeCanvas(windowWidth, 400);
 }
 
   /////////////////////////////////////////////////
@@ -127,7 +127,7 @@ function drawHome() {
   // Versionsnummer anzeigen
   fill(0);
   textSize(10);
-  text("version 1.72", 20, height - 20); // Position unten links
+  text("version 1.75", 20, height - 20); // Position unten links
 }
 }
 
@@ -148,18 +148,6 @@ function drawClock() {
     text(h + ':' + m + ':' + s, width / 2, height / 2);
 }
 
-
-  // Menüsteuerung
-function changePage(page) {
-    currentPage = page;
-    document.getElementById("menuDropdown").style.display = "none"; // Menü schließen
-}
-
-// Dropdown ein-/ausblenden
-function toggleMenu() {
-    let dropdown = document.getElementById("menuDropdown");
-    dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-}
 
 function drawCourseText() {
   push();
