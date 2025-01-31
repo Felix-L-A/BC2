@@ -82,32 +82,15 @@ function draw() {
         drawClock();
     }
 
-  // Menüsteuerung
-function changePage(page) {
-    currentPage = page;
-    document.getElementById("menuDropdown").style.display = "none"; // Menü schließen
-    resizeCanvas(windowWidth, windowHeight); // Canvas neu skalieren
-}
-
-// Menü ein-/ausblenden (funktioniert auch auf Touch-Geräten)
-function toggleMenu() {
-    let dropdown = document.getElementById("menuDropdown");
-    if (dropdown.style.display === "block") {
-        dropdown.style.display = "none";
-    } else {
-        dropdown.style.display = "block";
-    }
-}
-
 // Automatische Skalierung bei Größenänderung
 function windowResized() {
     resizeCanvas(windowWidth, 400);
 }
 
   /////////////////////////////////////////////////
+  
   // Seiteninhalt HOME
 function drawHome() {
-
    
   // Neigungsanzeiger (Wasserlibelle)
   drawInclinationIndicator();
@@ -130,6 +113,22 @@ function drawHome() {
   text("version 1.75", 20, height - 20); // Position unten links
 }
 }
+
+/////////////////////////////////////////////////////////////
+
+  // Menüsteuerung
+function changePage(page) {
+    currentPage = page;
+    document.getElementById("menuDropdown").style.display = "none"; // Menü schließen
+}
+
+// Dropdown ein-/ausblenden
+function toggleMenu() {
+    let dropdown = document.getElementById("menuDropdown");
+    dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+}
+
+////////////////////////////////////////////////////
 
 function drawLog() {
     textSize(32);
@@ -156,7 +155,7 @@ function drawCourseText() {
   textAlign(CENTER, TOP);
   textSize(40); // Schriftgröße
   textStyle(BOLD);
-  text(`COG: ${headingGPS.toFixed(0)}°           SOG: ${(speed * 3.6).toFixed(1)} km/h`, 0, -90);
+  text(`COG: ${headingGPS.toFixed(0)}°      SOG: ${(speed * 3.6).toFixed(1)} km/h`, 0, -90);
   translate(0,100); 
   textStyle(BOLD);
   text(`heading: ${headingGyro.toFixed(0)}°`, 0, -100); // Zentrierter Text
