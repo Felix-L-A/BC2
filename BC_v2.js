@@ -71,7 +71,7 @@ function draw() {
     textSize(20);
     text("Please allow sensor permission", width / 2, height / 2-50);
     textSize(12);
-    text("version 1.74", width / 2, height / 2+50);
+    text("version 1.73", width / 2, height / 2+50);
     return;
   }
 
@@ -129,7 +129,7 @@ function drawHome() {
   // Versionsnummer anzeigen
   fill(0);
   textSize(10);
-  text("version 1.74", 20, height - 20); // Position unten links
+  text("version 1.72", 20, height - 20); // Position unten links
 }
 }
 
@@ -165,7 +165,7 @@ function toggleMenu() {
 
 function drawCourseText() {
   push();
-  translate(width, height / 2 - 80); // Position über der Skala
+  translate(width / 2, height / 2 - 80); // Position über der Skala
   fill(0); // Farbe des Textes (Schwarz)
   textAlign(CENTER, TOP);
   textSize(40); // Schriftgröße
@@ -190,10 +190,9 @@ function draw2DOverlay() {
 }
 
 
-
 function drawHeadingScale() {
   push();
-  translate(width, height / 2 + 50); // Mitte der Skala
+  translate(width / 2, height / 2 + 50); // Mitte der Skala
   
   let scaleWidth = width * 0.8; // Skala über 80% der Bildschirmbreite
   let scaleHeight = 40; // Höhe der Skala
@@ -281,7 +280,7 @@ function drawHeadingScale() {
 
 function drawInclinationIndicator() {
   push();
-  translate(width , height - 60); // Position unter der Windrose
+  translate(width / 2, height - 60); // Position unter der Windrose
   let indicatorWidth = 300;
   let positionX = map(rotationY, -30, 30, -indicatorWidth / 2, indicatorWidth / 2);
   stroke(0);
@@ -329,7 +328,7 @@ function updateHeading(heading) {
 
 function drawSteeringText() {
   push();
-  translate(width , height / 2 - 60); // Position über der Skala
+  translate(width / 2, height / 2 - 60); // Position über der Skala
   fill(0);
   textAlign(CENTER, CENTER);
   textSize(24);
