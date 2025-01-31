@@ -17,8 +17,7 @@ function setup() {
   if (currentPage === 'log') {
     // E-Mail Link erstellen
   link = createA('mailto:felix.leo.arens@gmail.com', 'E-Mail', '_self');
-  link.position(width / 2, 2 * height / 3);
-  link.style('color', '0');
+  link.position(width / 2, height / 3);
   link.style('font-size', '16px');
 }
 
@@ -63,7 +62,7 @@ function setup() {
 
 function draw() {
   background(255);
-  textSize(width < 600 ? 24 : 32);
+  textSize(width < 600 ? 20 : 30);
   
     // Wenn keine Berechtigung für Sensoren erteilt wurde
   if (!permissionGranted) {
@@ -72,7 +71,7 @@ function draw() {
     textSize(20);
     text("Please allow sensor permission", width / 2, height / 2-50);
     textSize(12);
-    text("version 1.72", width / 2, height / 2+50);
+    text("version 1.73", width / 2, height / 2+50);
     return;
   }
 
@@ -109,6 +108,9 @@ function windowResized() {
   /////////////////////////////////////////////////
   // Seiteninhalt HOME
 function drawHome() {
+
+  textAlign(CENTER, CENTER);
+  
   // Neigungsanzeiger (Wasserlibelle)
   drawInclinationIndicator();
   
